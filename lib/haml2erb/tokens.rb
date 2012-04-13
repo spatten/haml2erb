@@ -37,15 +37,15 @@ module Haml2Erb
     end
 
     class ContentsStart < Token
-      @regex = /^((\s+)|(==\s*)|(=\s*))/
+      @regex = /^((\s+)|(==\s*)|(=\s*)|(-\s*))/
 
       def self.match(text)
         match_data = @regex.match(text)
         if match_data
           @return_token = case match_data[1][0,1]
           when ' ' then self.new(match_data.to_s, :content_type => :text)
-          when '='
-            match_data[1][1,1] == '=' ? self.new(match_data.to_s, :content_type => :mixed) : self.new(match_data.to_s, :content_type => :ruby)
+          when '=', '-'
+            match_data[1][1,1] == '=' ? self.new(match_data.to_s, :content_type => :mixed) : self.new(match_data.to_s, :content_type => (match_data[1][0,1] == '-' ? :ruby_run : :ruby))
           end
         else
           @return_token = nil

@@ -26,6 +26,8 @@ module Haml2Erb
         @processed << (line_options[:contents] || "")
       when :ruby
         @processed << ("<%= " + line_options[:contents] + " %>")
+      when :ruby_run
+        @processed << ("<% " + line_options[:contents] + " %>")
       when :mixed
         @processed << ('<%= "' + line_options[:contents] + '" %>')
       end

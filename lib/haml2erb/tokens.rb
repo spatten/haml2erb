@@ -61,7 +61,7 @@ module Haml2Erb
     end
 
     class InitialAttribute < Token
-      @regex = /^([%#\.])(\w+)/
+      @regex = /^([%#\.])([-\w]+)/
 
       def self.match(text)
         match_data = @regex.match(text)

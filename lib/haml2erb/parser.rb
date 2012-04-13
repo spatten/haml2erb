@@ -70,7 +70,7 @@ module Haml2Erb
         writer << options
       end
     rescue => error
-      raise ParsingError, "Haml2Erb had trouble parsing line #{@line_number} with input '#{@lexer.input}' remaining: #{error.to_s}", error.backtrace
+      raise ParsingError, "Haml2Erb had trouble parsing line #{@line_number} with input #{@lexer.input.inspect} remaining: #{error.to_s}", error.backtrace
     end
   end
 end

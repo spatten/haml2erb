@@ -96,7 +96,7 @@ module Haml2Erb
     end
 
     class InnerAttributeRuby < Token
-      @regex = /^,?\s*:?['"]?([\w-]+)['"]?(:|(\s*=>))\s*([^'"\s][^,\s]+)\s*/
+      @regex = /^,?\s*:?['"]?([\w-]+)['"]?(:|(\s*=>))\s*([^'"\s][^},\s]+)\s*/
       def self.match(text)
         match_data = @regex.match(text)
         match_data ? self.new(match_data.to_s, :element_attribute => { match_data[1] => "<%= #{match_data[4]} %>" }) : nil

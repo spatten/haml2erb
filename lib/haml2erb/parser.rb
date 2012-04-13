@@ -52,6 +52,11 @@ module Haml2Erb
           @lexer.pop(Haml2Erb::Tokens::AttributesEnd)
         end
 
+        if(@lexer.peek(Haml2Erb::Tokens::SelfClosingTag))
+          @lexer.pop(Haml2Erb::Tokens::SelfClosingTag)
+          options[:self_closing_tag] = true
+        end
+        
         # handle element contents
         if(@lexer.peek(Haml2Erb::Tokens::ContentsStart))
           options.merge!(@lexer.pop(Haml2Erb::Tokens::ContentsStart).options)

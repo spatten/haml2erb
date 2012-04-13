@@ -32,6 +32,10 @@ module Haml2Erb
       @regex = /^\s*\}/
     end
 
+    class SelfClosingTag < Token
+      @regex = /^\//
+    end
+
     class ContentsStart < Token
       @regex = /^((\s+)|(==\s*)|(=\s*))/
 

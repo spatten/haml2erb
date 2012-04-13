@@ -9,7 +9,7 @@ module Haml2Erb
     def <<(line_options)
 
       close_tags(line_options[:indent])
-      @tag_stack.push(line_options[:element_type]) if line_options[:element_type]
+      @tag_stack.push(line_options[:element_type]) if line_options[:element_type] and !line_options[:self_closing_tag]
 
       @processed << ("  " * line_options[:indent]) if line_options[:indent]
       @processed << "<#{line_options[:element_type].to_s}" if line_options[:element_type]
@@ -18,6 +18,7 @@ module Haml2Erb
       line_options[:element_attributes] && line_options[:element_attributes].keys.each do |attribute_key|
         @processed << " #{attribute_key}='#{line_options[:element_attributes][attribute_key]}'"
       end
+      @processed << " /" if line_options[:self_closing_tag]
       @processed << ">" if line_options[:element_type]
 
       case(line_options[:content_type])
@@ -29,7 +30,7 @@ module Haml2Erb
         @processed << ('<%= "' + line_options[:contents] + '" %>')
       end
 
-      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents]
+      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag]
       @processed << "\n"
     end
 

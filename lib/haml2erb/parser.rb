@@ -1,7 +1,6 @@
 require 'haml2erb/lexer'
 require 'haml2erb/tokens'
 require 'haml2erb/mixins/comerging'
-require 'mixology'
 
 module Haml2Erb
   class HamlParser
@@ -17,7 +16,10 @@ module Haml2Erb
       # process incoming text one line at a time
       unprocessed.each_line do |line|
         @line_number += 1
-        options = { }.mixin Haml2Erb::Mixins::CoMerging
+        options = { }
+        class << options
+          include Haml2Erb::Mixins::CoMerging
+        end
         @lexer.load_input(line)
 
         # handle indent

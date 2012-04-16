@@ -10,6 +10,8 @@ module Haml2Erb
 
       close_tags(line_options[:indent])
       @tag_stack.push(line_options[:element_type]) if line_options[:element_type] and !line_options[:self_closing_tag]
+      ruby_block = line_options[:content_type] == :ruby_run and line_options[:contents] =~ / do(\s*\|[\w\d_,]+\|)?$/
+      @tag_stack.push(:ruby_block) if ruby_block
 
       @processed << ("  " * line_options[:indent]) if line_options[:indent]
       @processed << "<#{line_options[:element_type].to_s}" if line_options[:element_type]
@@ -32,7 +34,7 @@ module Haml2Erb
         @processed << ('<%= "' + line_options[:contents] + '" %>')
       end
 
-      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag]
+      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag] and !ruby_block
       @processed << "\n"
     end
 
@@ -45,9 +47,17 @@ module Haml2Erb
 
     def close_tags(current_indent, options = { :separate_line => true })
       while(@tag_stack.size > current_indent)
-        @processed << ("  " * (@tag_stack.size - 1)) if options[:separate_line] == true
-        @processed << "</#{@tag_stack.pop.to_s}>"
-        @processed << "\n" if options[:separate_line] == true
+        indent = @tag_stack.size - 1
+        stack_item = @tag_stack.pop
+        if stack_item == :ruby_block
+          @processed << ("  " * (indent)) if options[:separate_line] == true
+          @processed << "<% end %>"
+          @processed << "\n" if options[:separate_line] == true
+        else
+          @processed << ("  " * (indent)) if options[:separate_line] == true
+          @processed << "</#{stack_item.to_s}>"
+          @processed << "\n" if options[:separate_line] == true
+        end
       end
     end
   end

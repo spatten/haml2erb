@@ -10,7 +10,7 @@ module Haml2Erb
 
       close_tags(line_options[:indent])
       @tag_stack.push(line_options[:element_type]) if line_options[:element_type] and !line_options[:self_closing_tag]
-      ruby_block = (line_options[:content_type] == :ruby_run and line_options[:contents] =~ / do(\s*\|[\w\d_,]+\|)?$/)
+      ruby_block = (line_options[:content_type] == :ruby_run and line_options[:contents] =~ / do(\s*\|[\w\d_,\s]+\|)?$/)
       @tag_stack.push(:ruby_block) if ruby_block
 
       @processed << ("  " * line_options[:indent]) if line_options[:indent]

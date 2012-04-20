@@ -16,6 +16,7 @@ module Haml2Erb
       # process incoming text one line at a time
       unprocessed.each_line do |line|
         @line_number += 1
+        next if line =~ /^\s*$/
         options = { }
         class << options
           include Haml2Erb::Mixins::CoMerging

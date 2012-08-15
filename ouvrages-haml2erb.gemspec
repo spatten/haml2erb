@@ -5,11 +5,11 @@ $:.unshift lib unless $:.include?(lib)
 require 'haml2erb/version'
 
 Gem::Specification.new do |s|
-  s.name = "haml2erb"
+  s.name = "ouvrages-haml2erb"
   s.version = Haml2Erb::VERSION
   s.platform = Gem::Platform::RUBY
-  s.authors = 'Louis Sivillo'
-  s.email = ['louis.sivillo@gmail.com']
+  s.authors = ['Ouvrages', 'Louis Sivillo']
+  s.email = ['contact@ouvrages-web.fr']
 
   s.summary = 'Haml to ERB Converter'
   s.description = 'Haml to ERB Converter'

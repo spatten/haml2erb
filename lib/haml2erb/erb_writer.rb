@@ -8,10 +8,12 @@ module Haml2Erb
 
     def <<(line_options)
 
-      close_tags(line_options[:indent])
+      ruby_block = (line_options[:content_type] == :ruby_run and (line_options[:contents] =~ / do(\s*\|[\w\d_,\s]+\|)?$/ or line_options[:contents] =~ /^\s*if /))
+      else_block = (line_options[:content_type] == :ruby_run and (line_options[:contents] =~ /^\s*else\s*$/ or line_options[:contents] =~ /^\s*elsif\s/))
+      close_tags(line_options[:indent], :else_block => else_block)
       @tag_stack.push(line_options[:element_type]) if line_options[:element_type] and !line_options[:self_closing_tag]
-      ruby_block = (line_options[:content_type] == :ruby_run and line_options[:contents] =~ / do(\s*\|[\w\d_,\s]+\|)?$/)
       @tag_stack.push(:ruby_block) if ruby_block
+      @tag_stack.push(:else_block) if else_block
 
       @processed << ("  " * line_options[:indent]) if line_options[:indent]
       @processed << "<#{line_options[:element_type].to_s}" if line_options[:element_type]
@@ -34,7 +36,7 @@ module Haml2Erb
         @processed << ('<%= "' + line_options[:contents] + '" %>')
       end
 
-      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag] and !ruby_block
+      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag] and !ruby_block and !else_block
       @processed << "\n"
     end
 
@@ -45,14 +47,17 @@ module Haml2Erb
 
     private
 
-    def close_tags(current_indent, options = { :separate_line => true })
+    def close_tags(current_indent, options = {})
+      options = { :separate_line => true }.merge(options)
       while(@tag_stack.size > current_indent)
         indent = @tag_stack.size - 1
         stack_item = @tag_stack.pop
-        if stack_item == :ruby_block
-          @processed << ("  " * (indent)) if options[:separate_line] == true
-          @processed << "<% end %>"
-          @processed << "\n" if options[:separate_line] == true
+        if stack_item == :ruby_block or stack_item == :else_block
+          unless options[:else_block]
+            @processed << ("  " * (indent)) if options[:separate_line] == true
+            @processed << "<% end %>"
+            @processed << "\n" if options[:separate_line] == true
+          end
         else
           @processed << ("  " * (indent)) if options[:separate_line] == true
           @processed << "</#{stack_item.to_s}>"

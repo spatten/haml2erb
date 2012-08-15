@@ -8,12 +8,11 @@ module Haml2Erb
 
     def <<(line_options)
 
-      ruby_block = (line_options[:content_type] == :ruby_run and (line_options[:contents] =~ / do(\s*\|[\w\d_,\s]+\|)?$/ or line_options[:contents] =~ /^\s*if /))
       else_block = (line_options[:content_type] == :ruby_run and (line_options[:contents] =~ /^\s*else\s*$/ or line_options[:contents] =~ /^\s*elsif\s/))
-      close_tags(line_options[:indent], :else_block => else_block)
+      ruby_block = (line_options[:content_type] == :ruby_run and (line_options[:contents] =~ / do(\s*\|[\w\d_,\s]+\|)?$/ or line_options[:contents] =~ /^\s*if / or else_block))
+      close_tags(line_options[:indent], :incoming_else_block => else_block)
       @tag_stack.push(line_options[:element_type]) if line_options[:element_type] and !line_options[:self_closing_tag]
       @tag_stack.push(:ruby_block) if ruby_block
-      @tag_stack.push(:else_block) if else_block
 
       @processed << ("  " * line_options[:indent]) if line_options[:indent]
       @processed << "<#{line_options[:element_type].to_s}" if line_options[:element_type]
@@ -36,7 +35,7 @@ module Haml2Erb
         @processed << ('<%= "' + line_options[:contents] + '" %>')
       end
 
-      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag] and !ruby_block and !else_block
+      close_tags(line_options[:indent], :separate_line => false) if line_options[:contents] and !line_options[:self_closing_tag] and !ruby_block
       @processed << "\n"
     end
 
@@ -52,8 +51,8 @@ module Haml2Erb
       while(@tag_stack.size > current_indent)
         indent = @tag_stack.size - 1
         stack_item = @tag_stack.pop
-        if stack_item == :ruby_block or stack_item == :else_block
-          unless options[:else_block]
+        if stack_item == :ruby_block
+          unless options[:incoming_else_block]
             @processed << ("  " * (indent)) if options[:separate_line] == true
             @processed << "<% end %>"
             @processed << "\n" if options[:separate_line] == true
